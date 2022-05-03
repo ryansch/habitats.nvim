@@ -3,6 +3,7 @@ local M = {}
 local actions = require("telescope.actions")
 local actions_state = require("telescope.actions.state")
 local transform_mod = require('telescope.actions.mt').transform_mod
+local utils = require("telescope.utils")
 
 local habitats = require("habitats")
 
@@ -15,11 +16,15 @@ function M.open_habitat(prompt_bufnr)
   local habitat = M.get_selected_habitat()
   actions.close(prompt_bufnr)
 
+  -- Force prompt buffer to close _now_ instead of after a delay. Works around
+  -- https://github.com/nvim-telescope/telescope.nvim/commit/544c5ee40752ac5552595da86a62abaa39e2dfa9
+  utils.buf_delete(prompt_bufnr)
+
   habitats.open(habitat.name)
 end
 
 function M.add_habitat(prompt_bufnr)
-  actions._close(prompt_bufnr, true)
+  actions.close(prompt_bufnr)
 
   local folder_browser = require("telescope._extensions.habitats.folder_browser")
   folder_browser{

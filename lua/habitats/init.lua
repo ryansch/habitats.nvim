@@ -51,6 +51,15 @@ end
 
 function M.open(name)
   workspaces.open(name)
+
+  -- Force normal mode in new workspace.
+  -- Recent telescope changes seem to keep insert mode at times.
+  vim.schedule(function()
+    local mode = vim.fn.mode()
+    if mode ~= "n" then
+      vim.api.nvim_input "<ESC>"
+    end
+  end)
 end
 
 local function init_files()
@@ -106,16 +115,25 @@ function M.setup(opts)
           _sessions.save_and_stop()
 
           for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-            -- TODO: Deal with terminal windows
-            -- TODO: Deal with modified buffers
-            vim.cmd(string.format("bwipeout %d", bufnr))
+            if vim.bo[bufnr].modified then
+              _util.notify.warn("Save your changes first!")
+              return false
+            end
+
+            if vim.bo[bufnr].filetype == "toggleterm" then
+              _util.notify.warn("One or more open terminals found!")
+              return false
+            end
+          end
+
+          for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+            vim.api.nvim_buf_delete(bufnr, {})
           end
         end,
       },
       open = vim.tbl_flatten{
         function(name)
           logger.debug("habitats.open")
-          vim.cmd("Startify")
 
           require("titan.lsp").reload_custom_commands()
           _sessions.load(name)
