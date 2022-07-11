@@ -76,6 +76,12 @@ local function init_files()
   end
 end
 
+local function set_defaults()
+  if vim.api.nvim_get_option("sessionoptions") == "blank,buffers,curdir,folds,help,tabpages,winsize" then
+    vim.api.nvim_set_option("sessionoptions", "curdir,folds,help,tabpages,winsize")
+  end
+end
+
 function M.setup(opts)
   config = vim.tbl_deep_extend('force', config, opts or {})
   config.path = Path:new(config.path)
@@ -83,6 +89,8 @@ function M.setup(opts)
   config.sessions_path = config.path:joinpath("sessions")
 
   init_files()
+
+  set_defaults()
 
   workspaces.setup{
     path = config.habitats_path.filename,
@@ -127,7 +135,9 @@ function M.setup(opts)
           end
 
           for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-            vim.api.nvim_buf_delete(bufnr, {})
+            if vim.api.nvim_buf_is_valid(bufnr) then
+              vim.api.nvim_buf_delete(bufnr, {})
+            end
           end
         end,
       },

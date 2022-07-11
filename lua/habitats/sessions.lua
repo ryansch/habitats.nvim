@@ -22,7 +22,9 @@ function M.setup(opts)
   config = vim.tbl_deep_extend('force', config, opts or {})
   config.session_path = Path:new(config.session_path)
 
-  require("sessions").setup{}
+  require("sessions").setup{
+    -- events = { "BufEnter" },
+  }
 
   return M
 end
