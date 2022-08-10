@@ -2,6 +2,7 @@ local M = {}
 
 local Path = require("plenary.path")
 local workspaces = require("workspaces")
+local lspconfig = require("lspconfig")
 local _sessions = require("habitats.sessions")
 local _util = require("habitats.util")
 
@@ -134,6 +135,18 @@ function M.setup(opts)
             end
           end
 
+          logger.debug("Stopping lsp clients")
+          for _, name in ipairs(lspconfig.available_servers()) do
+            local server_config = lspconfig[name]
+
+            if server_config.manager then
+              for _, client in ipairs(server_config.manager.clients()) do
+                logger.debug("Stopping client", client.name)
+                client.stop(true)
+              end
+            end
+          end
+
           for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
             if vim.api.nvim_buf_is_valid(bufnr) then
               vim.api.nvim_buf_delete(bufnr, {})
@@ -145,7 +158,6 @@ function M.setup(opts)
         function(name)
           logger.debug("habitats.open")
 
-          require("titan.lsp").reload_custom_commands()
           _sessions.load(name)
 
           -- Set kitty tab name
