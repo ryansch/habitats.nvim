@@ -74,7 +74,7 @@ local function _folder_finder(opts)
 
   return async_oneshot_finder {
     fn_command = function()
-      return { command = "fd", args = args }
+      return { command = "zsh -ic fd", args = args }
     end,
     entry_maker = entry_maker,
     results = { entry_maker(cwd) },
