@@ -136,7 +136,7 @@ function M.setup(opts)
           end
 
           logger.debug("Stopping lsp clients")
-          for _, name in ipairs(lspconfig.available_servers()) do
+          for _, name in ipairs(lspconfig.util.available_servers()) do
             local server_config = lspconfig[name]
 
             if server_config.manager then
