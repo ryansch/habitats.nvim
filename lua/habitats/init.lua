@@ -12,6 +12,7 @@ local config = {
   global_cd = true,
   sort = true,
   notify_info = true,
+  sessionoptions = "curdir,folds,help,tabpages,winsize",
 
   hooks = {
     add = {},
@@ -78,9 +79,9 @@ local function init_files()
   end
 end
 
-local function set_defaults()
-  if vim.api.nvim_get_option("sessionoptions") == "blank,buffers,curdir,folds,help,tabpages,winsize,terminal" then
-    vim.api.nvim_set_option("sessionoptions", "curdir,folds,help,tabpages,winsize")
+local function set_sessionoptions()
+  if config.sessionoptions ~= nil then
+    vim.api.nvim_set_option("sessionoptions", config.sessionoptions)
   end
 end
 
@@ -92,7 +93,7 @@ function M.setup(opts)
 
   init_files()
 
-  set_defaults()
+  set_sessionoptions()
 
   workspaces.setup{
     path = config.habitats_path.filename,
