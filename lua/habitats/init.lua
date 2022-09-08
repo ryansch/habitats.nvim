@@ -78,7 +78,7 @@ local function init_files()
 end
 
 local function set_defaults()
-  if vim.api.nvim_get_option("sessionoptions") == "blank,buffers,curdir,folds,help,tabpages,winsize" then
+  if vim.api.nvim_get_option("sessionoptions") == "blank,buffers,curdir,folds,help,tabpages,winsize,terminal" then
     vim.api.nvim_set_option("sessionoptions", "curdir,folds,help,tabpages,winsize")
   end
 end
