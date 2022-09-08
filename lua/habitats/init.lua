@@ -5,6 +5,7 @@ local workspaces = require("workspaces")
 local lspconfig = require("lspconfig")
 local _sessions = require("habitats.sessions")
 local _util = require("habitats.util")
+local logger = require("habitats.logger")
 
 local config = {
   path = Path:new(vim.fn.stdpath("data"), "habitats.nvim"),
