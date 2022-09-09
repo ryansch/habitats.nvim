@@ -27,6 +27,11 @@ function picker_m.habitats_browser(opts)
         local picker = actions_state.get_current_picker(prompt_bufnr)
         local finder = _finders.habitat_finder(opts, habitats.get())
         picker:refresh(finder, { reset_prompt = true })
+
+        -- force insert mode
+        local mode = vim.fn.mode()
+        local keys = mode ~= "n" and "<ESC>A" or "A"
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(keys, true, false, true), "n", true)
       end
 
       _actions.delete_habitat:enhance({ post = refresh_projects })
