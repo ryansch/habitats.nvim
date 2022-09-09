@@ -35,7 +35,17 @@ end
 function M.delete_habitat()
   local habitat = M.get_selected_habitat()
 
-  habitats.delete(habitat.name)
+  vim.ui.input(
+    {
+      prompt = "Delete " .. habitat.name .. "? (y/n) ",
+    },
+    function(confirm)
+      if not confirm then return end
+      if confirm == "y" or confirm == "Y" then
+        habitats.delete(habitat.name)
+      end
+    end
+  )
 end
 
 function M.rename_habitat()
@@ -43,7 +53,7 @@ function M.rename_habitat()
 
   vim.ui.input(
     {
-      prompt = "New name: ",
+      prompt = "(Renaming " .. habitat.name .. ") New name: ",
     },
     function(new_name)
       if not new_name then return end
