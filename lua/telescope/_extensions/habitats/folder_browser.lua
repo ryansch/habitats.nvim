@@ -13,10 +13,15 @@ function picker_m.add_habitat_with_path(prompt_bufnr)
   actions.close(prompt_bufnr)
   local path = selection[1]
 
+  local default_name = selection.ordinal
+  if string.sub(default_name, -1, -1) == "/" then
+    default_name = string.sub(default_name, 1, -2)
+  end
+
   vim.ui.input(
     {
       prompt = "Habitat name: ",
-      default = selection.ordinal,
+      default = default_name,
     },
     function(name)
       if not name then return end
