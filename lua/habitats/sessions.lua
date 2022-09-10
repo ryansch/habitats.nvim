@@ -34,6 +34,12 @@ function M.rename(name, new_name, current_session_name)
   end
 
   local path = config.session_path:joinpath(name)
+
+  if not path:exists() then
+    -- The session file doesn't exist so we can claim success!
+    return true
+  end
+
   local new_path = config.session_path:joinpath(new_name)
   local result = path:copy{ destination = new_path, override = false }
   logger.debug("result", result)
