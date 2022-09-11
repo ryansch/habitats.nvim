@@ -9,6 +9,7 @@ Add to packer config:
   use {
     "ryansch/habitats.nvim",
     requires = {
+      "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope-file-browser.nvim",
       "natecraddock/sessions.nvim",
       "natecraddock/workspaces.nvim"
