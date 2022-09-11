@@ -7,6 +7,15 @@ local _sessions = require("habitats.sessions")
 local _util = require("habitats.util")
 local logger = require("habitats.logger")
 
+---@class habitats.config
+---@field path Path
+---@field habitats_path Path
+---@field sessions_path Path
+---@field global_cd boolean
+---@field sort boolean
+---@field notify_info boolean
+---@field sessionoptions string|nil
+---@field hooks habitats.hooks
 local config = {
   path = Path:new(vim.fn.stdpath("data"), "habitats.nvim"),
   global_cd = true,
@@ -14,14 +23,24 @@ local config = {
   notify_info = true,
   sessionoptions = "curdir,folds,help,tabpages,winsize",
 
+  ---@class habitats.hooks
+  ---@field add table
+  ---@field remove table
+  ---@field rename table
+  ---@field open_pre table
+  ---@field open table
   hooks = {
     add = {},
     remove = {},
+    rename = {},
     open_pre = {},
     open = {},
   }
 }
 
+---Add a habitat
+---@param name string
+---@param path string
 function M.add(name, path)
   if not name or not path then
     _util.notify.err("Missing name or path!")
@@ -30,28 +49,50 @@ function M.add(name, path)
   workspaces.add_swap(name, path)
 end
 
+---Delete a habitat
+---@param name string
 function M.delete(name)
-  -- TODO: remove session data
+  _sessions.delete(name, workspaces.name())
   workspaces.remove(name)
 end
 
+---Rename a habitat
+---@param name string
+---@param new_name string
 function M.rename(name, new_name)
-  -- TODO
-  _util.notify.warn("Not implemented!")
+  logger.debug("habitats.rename")
 
-  -- if config.notify_info then
-  --   _util.notify.info(string.format("habitat [%s -> %s] renamed", name, new_name))
-  -- end
+  local result = _sessions.rename(name, new_name, workspaces.name())
+  if not result then
+    _util.notify.err(string.format("Unable to rename habitat [%s]", name))
+    return
+  end
+  workspaces.rename(name, new_name)
+
+  logger.debug(workspaces.list())
 end
 
+---Returns the list of all habitats
+---each workspace is formatted as a { name = "", path = "" } table
+---@return table
 function M.get()
   return workspaces.get()
 end
 
+---Displays the list of workspaces
 function M.list()
   return workspaces.list()
 end
 
+---Returns the name of the current habitat
+---@return string|nil
+function M.name()
+  return workspaces.name()
+end
+
+---Opens the named habitat
+---this changes the current directory to the path specified in the habitat
+---@param name string
 function M.open(name)
   workspaces.open(name)
 
@@ -85,6 +126,8 @@ local function set_sessionoptions()
   end
 end
 
+---Setup habitats
+---@param opts habitats.config
 function M.setup(opts)
   config = vim.tbl_deep_extend('force', config, opts or {})
   config.path = Path:new(config.path)
@@ -114,6 +157,14 @@ function M.setup(opts)
         function(name, path)
           if config.notify_info then
             _util.notify.info(string.format("habitat [%s -> %s] deleted", name, path))
+          end
+        end
+      },
+      rename = vim.tbl_flatten{
+        config.hooks.rename,
+        function(name, path)
+          if config.notify_info then
+            _util.notify.info(string.format("habitat [%s -> %s] renamed", name, path))
           end
         end
       },
